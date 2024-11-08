@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-commerce Platform</title>
+</head>
+<body>
+  <h1>Welcome to E-commerce Platform</h1>
+
+  <!-- Signup Form -->
+  <h2>Signup</h2>
+  <form id="signupForm">
+    <input type="text" id="signupName" placeholder="Name" required><br>
+    <input type="email" id="signupEmail" placeholder="Email" required><br>
+    <input type="password" id="signupPassword" placeholder="Password" required><br>
+    <input type="text" id="signupAddress" placeholder="Address"><br>
+    <button type="submit">Sign Up</button>
+  </form>
+  <p id="signupMessage"></p>
+
+  <!-- Login Form -->
+  <h2>Login</h2>
+  <form id="loginForm">
+    <input type="email" id="loginEmail" placeholder="Email" required><br>
+    <input type="password" id="loginPassword" placeholder="Password" required><br>
+    <button type="submit">Log In</button>
+  </form>
+  <p id="loginMessage"></p>
+
+  <!-- Product List -->
+  <h2>Product List</h2>
+  <button onclick="fetchProducts()">Load Products</button>
+  <ul id="productList"></ul>
+
+  <!-- Cart Actions -->
+  <h2>Cart Management</h2>
+  <form id="addToCartForm">
+    <input type="text" id="cartProductId" placeholder="Product ID" required><br>
+    <input type="number" id="cartQuantity" placeholder="Quantity" required><br>
+    <button type="submit">Add to Cart</button>
+  </form>
+  <p id="cartMessage"></p>
+  <button onclick="fetchCart()">View Cart</button>
+  <ul id="cartList"></ul>
+
+  <!-- Place Order -->
+  <h2>Place Order</h2>
+  <form id="placeOrderForm">
+    <input type="text" id="orderAddress" placeholder="Shipping Address" required><br>
+    <button type="submit">Place Order</button>
+  </form>
+  <p id="orderMessage"></p>
+
+  <script>
+    const cors = require('cors');
+    app.use(cors({ origin: 'http://localhost:3001' }));
+    const API_URL = 'http://localhost:3000';
+    const authToken = () => localStorage.getItem('token');
+
+    // Signup Form Handler
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('signupName').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const address = document.getElementById('signupAddress').value;
+
+      const response = await fetch(`${API_URL}/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, address })
+      });
+      const data = await response.json();
+      document.getElementById('signupMessage').innerText = data.message || data.error;
+    });
+
+    // Login Form Handler
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      const response = await fetch(`${API_URL}/signin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await response.json();
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        document.getElementById('loginMessage').innerText = 'Login successful!';
+      } else {
+        document.getElementById('loginMessage').innerText = data.error;
+      }
+    });
+
+    // Fetch and Display Products
+    async function fetchProducts() {
+      const response = await fetch(`${API_URL}/products`);
+      const products = await response.json();
+      const productList = document.getElementById('productList');
+      productList.innerHTML = '';
+      products.forEach(product => {
+        const item = document.createElement('li');
+        item.innerText = `${product.name} - $${product.price}`;
+        productList.appendChild(item);
+      });
+    }
+
+    // Add to Cart Form Handler
+    document.getElementById('addToCartForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const productId = document.getElementById('cartProductId').value;
+      const quantity = document.getElementById('cartQuantity').value;
+
+      const response = await fetch(`${API_URL}/cart/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken()}`
+        },
+        body: JSON.stringify({ productId, quantity })
+      });
+      const data = await response.json();
+      document.getElementById('cartMessage').innerText = data.message || data.error;
+    });
+
+    // Fetch and Display Cart
+    async function fetchCart() {
+      const response = await fetch(`${API_URL}/cart`, {
+        headers: { 'Authorization': `Bearer ${authToken()}` }
+      });
+      const cartItems = await response.json();
+      const cartList = document.getElementById('cartList');
+      cartList.innerHTML = '';
+      cartItems.items.forEach(item => {
+        const listItem = document.createElement('li');
+        listItem.innerText = `${item.productId} - Quantity: ${item.quantity}`;
+        cartList.appendChild(listItem);
+      });
+    }
+
+    // Place Order Handler
+    document.getElementById('placeOrderForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const address = document.getElementById('orderAddress').value;
+
+      const response = await fetch(`${API_URL}/placeorder`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken()}`
+        },
+        body: JSON.stringify({ address })
+      });
+      const data = await response.json();
+      document.getElementById('orderMessage').innerText = data.message || data.error;
+    });
+  </script>
+</body>
+</html>
