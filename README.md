@@ -17,7 +17,7 @@
 
 ## **Project Overview**
 
-This is a backend API for an **E-commerce Platform** that provides **user authentication**, **product management**, **cart management**, and **order management** functionalities. The project is built with **Node.js** and **Express** and uses **MongoDB** as the database. Authentication is handled through **JSON Web Tokens (JWT)**.
+This repository contains an API for an e-commerce platform, built using Node.js, Express, and Sequelize with a MySQL database. The API supports user authentication, product management, cart functionality, and order processing.
 
 ---
 
@@ -40,10 +40,84 @@ This is a backend API for an **E-commerce Platform** that provides **user authen
 
 ---
 
-## **Installation and Setup**
+## Installation
 
-### **1. Clone the Repository**
+1. **Clone the repository**:
+   \`\`\`bash
+   git clone https://github.com/yourusername/your-repo-name.git
+   cd your-repo-name
+   \`\`\`
 
-```bash
-git clone <repository-url>
-cd <project-folder>
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Start MySQL** and create a new database:
+   ```sql
+   CREATE DATABASE ecommerce_db;
+   ```
+
+4. **Update database credentials** in \`app.js\`:
+   ```javascript
+   const sequelize = new Sequelize('ecommerce_db', 'username', 'password', {
+     host: 'localhost',
+     dialect: 'mysql',
+   });
+   ```
+
+5. **Run the server**:
+   ```bash
+   node app.js
+   ```
+
+
+   The server will start on \`http://localhost:3000\`.
+
+## Configuration
+
+This API requires MySQL and assumes a database named \`ecommerce_db\` with the user credentials specified in the code. Update the Sequelize configuration in \`app.js\` as needed.
+
+## API Endpoints
+
+### Authentication
+
+- **POST /signup** - Registers a new user.
+- **POST /signin** - Authenticates the user and returns a JWT token.
+
+### Product Management
+
+- **POST /addproduct** - Adds a new product (protected).
+- **PUT /updateproduct/:productId** - Updates a product (protected).
+- **DELETE /deleteproduct/:productId** - Deletes a product (protected).
+- **GET /products** - Retrieves all products.
+
+### Cart Management
+
+- **POST /cart/add** - Adds a product to the cart (protected).
+- **PUT /cart/update** - Updates the quantity of a product in the cart (protected).
+- **DELETE /cart/delete** - Removes a product from the cart (protected).
+- **GET /cart** - Retrieves the user's cart details (protected).
+
+### Order Management
+
+- **POST /placeorder** - Places an order for the items in the user's cart (protected).
+- **GET /getallorders** - Retrieves all orders (protected).
+- **GET /orders/customer/:customerId** - Retrieves orders for a specific customer (protected).
+
+## Database Models
+
+- **User**: Manages user data.
+- **Product**: Stores product information.
+- **Cart**: Stores the user's cart.
+- **CartItem**: Manages items in the cart.
+- **Order**: Handles user orders.
+
+## Technologies Used
+
+- **Node.js**: JavaScript runtime.
+- **Express**: Web framework for Node.js.
+- **Sequelize**: ORM for MySQL.
+- **MySQL**: Database for storing application data.
+- **bcrypt**: For password hashing.
+- **jsonwebtoken**: For user authentication.
